@@ -836,6 +836,9 @@ ppForAll expl tvs cxt unicode
     is_explicit = case expl of {Explicit -> True; Implicit -> False}
     forall_part = hsep (forallSymbol unicode : ppTyVars tvs) <> dot
 
+ppLambda :: LHsTyVarBndrs DocName -> Bool -> LaTeX
+ppLambda tvs unicode
+  = hsep (bigLambdaSymbol unicode : ppTyVars tvs) <> dot
 
 ppr_mono_lty :: Int -> LHsType DocName -> Bool -> LaTeX
 ppr_mono_lty ctxt_prec ty unicode = ppr_mono_ty ctxt_prec (unLoc ty) unicode
@@ -845,6 +848,10 @@ ppr_mono_ty :: Int -> HsType DocName -> Bool -> LaTeX
 ppr_mono_ty ctxt_prec (HsForAllTy expl tvs ctxt ty) unicode
   = maybeParen ctxt_prec pREC_FUN $
     hsep [ppForAll expl tvs ctxt unicode, ppr_mono_lty pREC_TOP ty unicode]
+
+ppr_mono_ty ctxt_prec (HsBigLambda tvs ty) unicode
+  = maybeParen ctxt_prec pREC_FUN $
+    hsep [ppLambda tvs unicode, ppr_mono_lty pREC_TOP ty unicode]
 
 ppr_mono_ty _         (HsBangTy b ty)     u = ppBang b <> ppLParendType u ty
 ppr_mono_ty _         (HsTyVar name)      _ = ppDocName name
@@ -1115,11 +1122,12 @@ quote :: LaTeX -> LaTeX
 quote doc = text "\\begin{quote}" $$ doc $$ text "\\end{quote}"
 
 
-dcolon, arrow, darrow, forallSymbol :: Bool -> LaTeX
+dcolon, arrow, darrow, forallSymbol, bigLambdaSymbol :: Bool -> LaTeX
 dcolon unicode = text (if unicode then "∷" else "::")
 arrow  unicode = text (if unicode then "→" else "->")
 darrow unicode = text (if unicode then "⇒" else "=>")
 forallSymbol unicode = text (if unicode then "∀" else "forall")
+bigLambdaSymbol unicode = text (if unicode then "Λ" else "/\\")
 
 
 dot :: LaTeX

@@ -154,6 +154,7 @@ instHead (_, _, cls, args)
     simplify (TyVarTy v) = SimpleType (tyVarName v) []
     simplify (TyConApp tc ts) = SimpleType (tyConName tc) (map simplify ts)
     simplify (LitTy l) = SimpleTyLit l
+    simplify (BigLambda _ t) = simplify t
 
 
 -- sortImage f = sortBy (\x y -> compare (f x) (f y))
@@ -207,3 +208,4 @@ isInstanceHidden expInfo cls tys =
         FunTy t1 t2 -> typeHidden t1 || typeHidden t2
         ForAllTy _ ty -> typeHidden ty
         LitTy _ -> False
+        BigLambda _ ty -> typeHidden ty
