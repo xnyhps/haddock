@@ -788,6 +788,10 @@ ppForAll expl tvs cxt unicode qual
     is_explicit = case expl of {Explicit -> True; Implicit -> False}
     forall_part = hsep (forallSymbol unicode : ppTyVars tvs) +++ dot
 
+ppLambda :: LHsTyVarBndrs DocName -> Bool -> Html
+ppLambda tvs unicode
+  = hsep (bigLambdaSymbol unicode : ppTyVars tvs) +++ dot
+
 
 ppr_mono_lty :: Int -> LHsType DocName -> Unicode -> Qualification -> Html
 ppr_mono_lty ctxt_prec ty = ppr_mono_ty ctxt_prec (unLoc ty)
@@ -797,6 +801,10 @@ ppr_mono_ty :: Int -> HsType DocName -> Unicode -> Qualification -> Html
 ppr_mono_ty ctxt_prec (HsForAllTy expl tvs ctxt ty) unicode qual
   = maybeParen ctxt_prec pREC_FUN $
     hsep [ppForAll expl tvs ctxt unicode qual, ppr_mono_lty pREC_TOP ty unicode qual]
+
+ppr_mono_ty ctxt_prec (HsBigLambda tvs ty) unicode qual
+  = maybeParen ctxt_prec pREC_FUN $
+    hsep [ppLambda tvs unicode, ppr_mono_lty pREC_TOP ty unicode qual]
 
 ppr_mono_ty _         (HsBangTy b ty)     u q = ppBang b +++ ppLParendType u q ty
 ppr_mono_ty _         (HsTyVar name)      _ q = ppDocName q Prefix True name

@@ -155,6 +155,7 @@ argCount (AppTy t _) = argCount t + 1
 argCount (TyConApp _ ts) = length ts
 argCount (FunTy _ _ ) = 2
 argCount (ForAllTy _ t) = argCount t
+argCount (BigLambda _ t) = argCount t
 argCount _ = 0
 
 simplify :: Type -> SimpleType
@@ -165,6 +166,7 @@ simplify (AppTy t1 t2) = SimpleType s (ts ++ [simplify t2])
 simplify (TyVarTy v) = SimpleType (tyVarName v) []
 simplify (TyConApp tc ts) = SimpleType (tyConName tc) (map simplify ts)
 simplify (LitTy l) = SimpleTyLit l
+simplify (BigLambda _ t) = simplify t
 
 -- Used for sorting
 instFam :: FamInst -> ([Int], Name, [SimpleType], Int, SimpleType)
@@ -217,6 +219,7 @@ isTypeHidden expInfo = typeHidden
         FunTy t1 t2 -> typeHidden t1 || typeHidden t2
         ForAllTy _ ty -> typeHidden ty
         LitTy _ -> False
+	BigLambda _ ty -> typeHidden ty
 
     nameHidden :: Name -> Bool
     nameHidden = isNameHidden expInfo

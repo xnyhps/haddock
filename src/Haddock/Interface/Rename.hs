@@ -184,6 +184,11 @@ renameType t = case t of
     lcontext' <- renameLContext lcontext
     ltype'    <- renameLType ltype
     return (HsForAllTy expl tyvars' lcontext' ltype')
+  
+  HsBigLambda tyvars ltype -> do
+    tyvars' <- renameLTyVarBndrs tyvars
+    ltype'  <- renameLType ltype
+    return (HsBigLambda tyvars' ltype')
 
   HsTyVar n -> return . HsTyVar =<< rename n
   HsBangTy b ltype -> return . HsBangTy b =<< renameLType ltype
@@ -231,7 +236,7 @@ renameType t = case t of
   HsExplicitListTy  a b   -> HsExplicitListTy  a <$> mapM renameLType b
   HsExplicitTupleTy a b   -> HsExplicitTupleTy a <$> mapM renameLType b
   HsQuasiQuoteTy a        -> HsQuasiQuoteTy <$> renameHsQuasiQuote a
-  HsSpliceTy _ _          -> error "renameType: HsSpliceTy"
+  HsSpliceTy _ _ _        -> error "renameType: HsSpliceTy"
 
 renameHsQuasiQuote :: HsQuasiQuote Name -> RnM (HsQuasiQuote DocName)
 renameHsQuasiQuote (HsQuasiQuote a b c) = HsQuasiQuote <$> rename a <*> pure b <*> pure c

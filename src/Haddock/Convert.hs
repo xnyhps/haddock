@@ -362,6 +362,8 @@ synifyType s forallty@(ForAllTy _tv _ty) =
      in noLoc $
            HsForAllTy forallPlicitness sTvs sCtx sTau
 synifyType _ (LitTy t) = noLoc $ HsTyLit $ synifyTyLit t
+synifyType _ (BigLambda {}) = error "synifyType: BigLambda"
+
 
 synifyTyLit :: TyLit -> HsTyLit
 synifyTyLit (NumTyLit n) = HsNumTy n
